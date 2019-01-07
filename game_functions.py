@@ -1,6 +1,7 @@
 import sys
 
 import pygame
+import game_functions as gf
 
 from bullet import Bullet
 
@@ -11,10 +12,7 @@ def check_keydown_events(event, ai_settings, screen, ship, bullets):
     elif event.key == pygame.K_LEFT:
         ship.moving_left = True
     elif event.key == pygame.K_SPACE:
-        #Creates a new projectiles and add to the projectiles group
-        if len(bullets) < ai_settings.bullets_allowed:
-            new_bullet = Bullet(ai_settings, screen, ship)
-            bullets.add(new_bullet)
+        gf.fire_bullet(ai_settings, screen, ship, bullets)
 
 def check_keyup_events(event, ship):
     """Respond to key release"""
@@ -48,3 +46,21 @@ def update_screen(ai_settings, screen, ship, bullets):
 
     #leave the most recent screen visible
     pygame.display.flip()
+
+def update_bullets(bullets):
+    """Refresh projectiles position and get rid of old projectiles."""
+    #Refresh projectiles position
+    bullets.update()
+
+    #Gets rid of projectiles that have disappeared
+    for bullet in bullets.copy():
+        if bullet.rect.bottom <= 0:
+            bullets.remove(bullet)
+
+
+def fire_bullet(ai_settings, screen, ship, bullets):
+    """Shoot a projectile if the limit is not reached"""
+    #Creates a new projectiles and add to the projectiles group
+    if len(bullets) < ai_settings.bullets_allowed:
+        new_bullet = Bullet(ai_settings, screen, ship)
+        bullets.add(new_bullet)
